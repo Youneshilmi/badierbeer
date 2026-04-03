@@ -125,9 +125,9 @@ export default async function HomePage() {
                 </div>
                 <div className="p-4">
                   <h3 className="font-semibold text-white">{glass.name}</h3>
-                  {(glass.manufacturers as { name: string } | null)?.name && (
+                  {(glass.manufacturers as { name: string }[] | null)?.[0]?.name && (
                     <p className="text-[#D4AF37] text-sm mt-0.5">
-                      {(glass.manufacturers as { name: string }).name}
+                      {(glass.manufacturers as { name: string }[])[0].name}
                     </p>
                   )}
                 </div>
