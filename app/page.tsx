@@ -2,24 +2,38 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Beer, ChevronRight, Star, Users, Shield } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export default async function HomePage() {
-  const supabase = await createClient()
+  let approvedCount: number | null = null
+  let manufacturerCount: number | null = null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let latestGlasses: any[] | null = null
 
-  const { count: approvedCount } = await supabase
-    .from('glasses')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'approved')
+  try {
+    const supabase = await createClient()
 
-  const { count: manufacturerCount } = await supabase
-    .from('manufacturers')
-    .select('*', { count: 'exact', head: true })
+    const { count: ac } = await supabase
+      .from('glasses')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'approved')
+    approvedCount = ac
 
-  const { data: latestGlasses } = await supabase
-    .from('glasses')
-    .select('id, name, image_urls, manufacturers(name)')
-    .eq('status', 'approved')
-    .order('created_at', { ascending: false })
-    .limit(3)
+    const { count: mc } = await supabase
+      .from('manufacturers')
+      .select('*', { count: 'exact', head: true })
+    manufacturerCount = mc
+
+    const { data } = await supabase
+      .from('glasses')
+      .select('id, name, image_urls, manufacturers(name)')
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false })
+      .limit(3)
+    latestGlasses = data
+  } catch (err) {
+    console.error('[HomePage] Supabase error:', err)
+  }
 
   return (
     <div className="relative">

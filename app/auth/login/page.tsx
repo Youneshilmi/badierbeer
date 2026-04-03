@@ -4,6 +4,8 @@ import LoginButtons from '@/components/LoginButtons'
 import { Beer } from 'lucide-react'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 export default async function LoginPage({
   searchParams,
 }: {

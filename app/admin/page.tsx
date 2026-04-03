@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import AdminTabs from '@/components/AdminTabs'
 import { ShieldCheck } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AdminPage() {
   const supabase = await createClient()
   const {

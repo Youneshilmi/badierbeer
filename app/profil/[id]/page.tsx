@@ -3,47 +3,66 @@ import { notFound } from 'next/navigation'
 import { ShieldCheck, Crown, User, Beer, Clock, CheckCircle, XCircle } from 'lucide-react'
 import GlassCard from '@/components/GlassCard'
 
+export const dynamic = 'force-dynamic'
+
 export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const supabase = await createClient()
 
-  const {
-    data: { user: currentUser },
-  } = await supabase.auth.getUser()
+  let currentUser = null
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let profile: any = null
+  let isAdmin = false
+  let isSelf = false
+  let canSeeAll = false
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let glasses: any[] | null = null
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, email, role')
-    .eq('id', id)
-    .single()
+  try {
+    const supabase = await createClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    currentUser = user
+
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('id, email, role')
+      .eq('id', id)
+      .single()
+    profile = profileData
+
+    if (!profile) notFound()
+
+    isSelf = currentUser?.id === id
+
+    if (currentUser && !isSelf) {
+      const { data: currentProfile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', currentUser.id)
+        .single()
+      isAdmin = currentProfile?.role === 'admin' || currentProfile?.role === 'superadmin'
+    }
+
+    canSeeAll = isSelf || isAdmin
+
+    let query = supabase
+      .from('glasses')
+      .select('*, manufacturers(name)')
+      .eq('user_id', id)
+      .order('created_at', { ascending: false })
+
+    if (!canSeeAll) {
+      query = query.eq('status', 'approved') as typeof query
+    }
+
+    const { data: glassesData } = await query
+    glasses = glassesData
+  } catch (err) {
+    console.error('[ProfilePage] error:', err)
+    notFound()
+  }
 
   if (!profile) notFound()
-
-  const isSelf = currentUser?.id === id
-
-  let isAdmin = false
-  if (currentUser && !isSelf) {
-    const { data: currentProfile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', currentUser.id)
-      .single()
-    isAdmin = currentProfile?.role === 'admin' || currentProfile?.role === 'superadmin'
-  }
-
-  const canSeeAll = isSelf || isAdmin
-
-  let query = supabase
-    .from('glasses')
-    .select('*, manufacturers(name)')
-    .eq('user_id', id)
-    .order('created_at', { ascending: false })
-
-  if (!canSeeAll) {
-    query = query.eq('status', 'approved') as typeof query
-  }
-
-  const { data: glasses } = await query
 
   const allGlasses = glasses ?? []
   const approved = allGlasses.filter((g) => g.status === 'approved')
