@@ -16,19 +16,24 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
+  let user = null
   let userRole: 'superadmin' | 'admin' | 'user' | null = null
-  if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-    userRole = profile?.role ?? 'user'
+
+  try {
+    const supabase = await createClient()
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    user = authUser
+
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      userRole = profile?.role ?? 'user'
+    }
+  } catch {
+    // Auth unavailable — render unauthenticated
   }
 
   return (
