@@ -20,20 +20,27 @@ export default async function RootLayout({
   let userRole: 'superadmin' | 'admin' | 'user' | null = null
 
   try {
+    console.log('[Layout] step 1: createClient')
     const supabase = await createClient()
-    const { data: { user: authUser } } = await supabase.auth.getUser()
+    console.log('[Layout] step 2: getUser')
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser()
+    if (authError) console.error('[Layout] getUser error:', authError.message)
     user = authUser
+    console.log('[Layout] step 3: user =', user ? 'authenticated' : 'null')
 
     if (user) {
-      const { data: profile } = await supabase
+      console.log('[Layout] step 4: fetch profile')
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', user.id)
         .single()
+      if (profileError) console.error('[Layout] profile error:', profileError.message)
       userRole = profile?.role ?? 'user'
+      console.log('[Layout] step 5: userRole =', userRole)
     }
-  } catch {
-    // Auth unavailable — render unauthenticated
+  } catch (err) {
+    console.error('[Layout] CAUGHT EXCEPTION:', err)
   }
 
   return (
