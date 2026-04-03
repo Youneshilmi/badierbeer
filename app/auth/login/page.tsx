@@ -7,9 +7,10 @@ import Link from 'next/link'
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { error?: string }
+  searchParams: Promise<{ error?: string }>
 }) {
-  const supabase = createClient()
+  const { error } = await searchParams
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -36,7 +37,7 @@ export default async function LoginPage({
             </p>
           </div>
 
-          {searchParams.error && (
+          {error && (
             <div className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
               Erreur d&apos;authentification. Veuillez réessayer.
             </div>

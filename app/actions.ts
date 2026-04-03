@@ -9,7 +9,7 @@ export async function submitGlass(data: {
   manufacturer_id: number
   image_urls: string[]
 }) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -42,7 +42,7 @@ export async function submitGlass(data: {
 }
 
 export async function updateGlassStatus(id: number, status: 'approved' | 'rejected') {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -77,7 +77,7 @@ export async function updateGlass(
     manufacturer_id?: number
   }
 ) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -101,7 +101,7 @@ export async function updateGlass(
 }
 
 export async function promoteToAdmin(userId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -128,7 +128,7 @@ export async function promoteToAdmin(userId: string) {
 }
 
 export async function demoteFromAdmin(userId: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()

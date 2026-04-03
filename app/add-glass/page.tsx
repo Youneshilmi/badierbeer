@@ -4,7 +4,7 @@ import AddGlassForm from '@/components/AddGlassForm'
 import { PlusCircle } from 'lucide-react'
 
 export default async function AddGlassPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()

@@ -4,7 +4,7 @@ import CatalogueClient from '@/components/CatalogueClient'
 export const revalidate = 60
 
 export default async function CataloguePage() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { data: glasses } = await supabase
     .from('glasses')

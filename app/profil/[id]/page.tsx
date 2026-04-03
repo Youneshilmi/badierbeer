@@ -3,8 +3,9 @@ import { notFound } from 'next/navigation'
 import { ShieldCheck, Crown, User, Beer, Clock, CheckCircle, XCircle } from 'lucide-react'
 import GlassCard from '@/components/GlassCard'
 
-export default async function ProfilePage({ params }: { params: { id: string } }) {
-  const supabase = createClient()
+export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const supabase = await createClient()
 
   const {
     data: { user: currentUser },
@@ -13,12 +14,12 @@ export default async function ProfilePage({ params }: { params: { id: string } }
   const { data: profile } = await supabase
     .from('profiles')
     .select('id, email, role')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (!profile) notFound()
 
-  const isSelf = currentUser?.id === params.id
+  const isSelf = currentUser?.id === id
 
   let isAdmin = false
   if (currentUser && !isSelf) {
@@ -35,7 +36,7 @@ export default async function ProfilePage({ params }: { params: { id: string } }
   let query = supabase
     .from('glasses')
     .select('*, manufacturers(name)')
-    .eq('user_id', params.id)
+    .eq('user_id', id)
     .order('created_at', { ascending: false })
 
   if (!canSeeAll) {

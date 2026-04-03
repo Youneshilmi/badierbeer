@@ -4,7 +4,7 @@ import AdminTabs from '@/components/AdminTabs'
 import { ShieldCheck } from 'lucide-react'
 
 export default async function AdminPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()

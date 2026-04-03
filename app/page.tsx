@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Beer, ChevronRight, Star, Users, Shield } from 'lucide-react'
 
 export default async function HomePage() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const { count: approvedCount } = await supabase
     .from('glasses')
