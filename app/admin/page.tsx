@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import AdminTabs from '@/components/AdminTabs'
 import { ShieldCheck } from 'lucide-react'
@@ -21,16 +22,17 @@ export default async function AdminPage() {
 
   if (profile?.role !== 'admin' && profile?.role !== 'superadmin') redirect('/')
 
-  const { data: rawPendingGlasses } = await supabase
+  const adminSupabase = createAdminClient()
+
+  const { data: rawPendingGlasses } = await adminSupabase
     .from('glasses')
     .select('*, manufacturers(name)')
     .eq('status', 'pending')
     .order('created_at', { ascending: true })
 
-  // Fetch contributor emails separately (glasses.user_id → auth.users, not profiles directly)
   const userIds = Array.from(new Set((rawPendingGlasses ?? []).map((g) => g.user_id).filter(Boolean)))
   const { data: submitterProfiles } = userIds.length
-    ? await supabase.from('profiles').select('id, email').in('id', userIds)
+    ? await adminSupabase.from('profiles').select('id, email').in('id', userIds)
     : { data: [] }
 
   const emailMap = Object.fromEntries((submitterProfiles ?? []).map((p) => [p.id, p.email]))
@@ -39,31 +41,29 @@ export default async function AdminPage() {
     profiles: { email: emailMap[g.user_id] ?? null },
   }))
 
-  const { data: manufacturers } = await supabase
+  const { data: manufacturers } = await adminSupabase
     .from('manufacturers')
     .select('id, name')
     .order('name')
 
-  const { count: totalApproved } = await supabase
+  const { count: totalApproved } = await adminSupabase
     .from('glasses')
     .select('*', { count: 'exact', head: true })
     .eq('status', 'approved')
 
-  const { count: totalRejected } = await supabase
+  const { count: totalRejected } = await adminSupabase
     .from('glasses')
     .select('*', { count: 'exact', head: true })
     .eq('status', 'rejected')
 
-  // Fetch all profiles (requires admin RLS policies to be applied in Supabase)
-  const { data: profilesList } = await supabase
+  const { data: profilesList } = await adminSupabase
     .from('profiles')
     .select('id, email, role')
     .order('email')
 
-  // Fetch all glasses separately and group by user_id
   const allUserIds = (profilesList ?? []).map((p) => p.id)
   const { data: allUserGlasses } = allUserIds.length
-    ? await supabase.from('glasses').select('id, user_id, status').in('user_id', allUserIds)
+    ? await adminSupabase.from('glasses').select('id, user_id, status').in('user_id', allUserIds)
     : { data: [] }
 
   const glassesByUser: Record<string, { id: number; status: string }[]> = {}
