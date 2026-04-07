@@ -22,7 +22,7 @@ export async function submitGlass(data: {
     .eq('id', user.id)
     .single()
 
-  const status = profile?.role === 'admin' ? 'approved' : 'pending'
+  const status = (profile?.role === 'admin' || profile?.role === 'superadmin') ? 'approved' : 'pending'
 
   const { error } = await supabase.from('glasses').insert({
     name: data.name,
@@ -55,7 +55,7 @@ export async function updateGlassStatus(id: number, status: 'approved' | 'reject
     .eq('id', user.id)
     .single()
 
-  if (profile?.role !== 'admin') throw new Error('Accès refusé')
+  if (profile?.role !== 'admin' && profile?.role !== 'superadmin') throw new Error('Accès refusé')
 
   const { error } = await supabase
     .from('glasses')
@@ -90,7 +90,7 @@ export async function updateGlass(
     .eq('id', user.id)
     .single()
 
-  if (profile?.role !== 'admin') throw new Error('Accès refusé')
+  if (profile?.role !== 'admin' && profile?.role !== 'superadmin') throw new Error('Accès refusé')
 
   const { error } = await supabase.from('glasses').update(updates).eq('id', id)
 
