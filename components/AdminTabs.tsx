@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { ClipboardList, Users } from 'lucide-react'
+import { ClipboardList, Users, Upload } from 'lucide-react'
 import AdminPanel from '@/components/AdminPanel'
 import ContributorsPanel from '@/components/ContributorsPanel'
+import ImportPanel from '@/components/ImportPanel'
 import type { Glass, Manufacturer } from '@/lib/types'
 
 interface ContributorGlass {
@@ -29,6 +30,7 @@ interface AdminTabsProps {
 const tabs = [
   { id: 'moderation', label: 'Modération', icon: ClipboardList },
   { id: 'contributors', label: 'Contributeurs', icon: Users },
+  { id: 'import', label: 'Import CSV', icon: Upload },
 ]
 
 export default function AdminTabs({
@@ -38,7 +40,7 @@ export default function AdminTabs({
   currentUserId,
   currentUserRole,
 }: AdminTabsProps) {
-  const [activeTab, setActiveTab] = useState<'moderation' | 'contributors'>('moderation')
+  const [activeTab, setActiveTab] = useState<'moderation' | 'contributors' | 'import'>('moderation')
 
   return (
     <div>
@@ -50,7 +52,7 @@ export default function AdminTabs({
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as 'moderation' | 'contributors')}
+              onClick={() => setActiveTab(tab.id as 'moderation' | 'contributors' | 'import')}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 isActive
                   ? 'bg-[#D4AF37]/15 text-[#D4AF37] border border-[#D4AF37]/25'
@@ -80,6 +82,9 @@ export default function AdminTabs({
       )}
       {activeTab === 'contributors' && (
         <ContributorsPanel contributors={contributors} currentUserId={currentUserId} currentUserRole={currentUserRole} />
+      )}
+      {activeTab === 'import' && (
+        <ImportPanel />
       )}
     </div>
   )
