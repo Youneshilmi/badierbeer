@@ -33,14 +33,20 @@ export default async function GlassDetailPage({
 
   const { data: glass } = await adminSupabase
     .from('glasses')
-    .select('*, manufacturers(name), profiles(email, role)')
+    .select('*, manufacturers(name)')
     .eq('id', glassId)
     .single()
 
   if (!glass) notFound()
   if (glass.status !== 'approved' && !isAdmin) notFound()
 
-  const contributor = glass.profiles as { email: string | null; role: string } | null
+  const { data: contributorProfile } = await adminSupabase
+    .from('profiles')
+    .select('email, role')
+    .eq('id', glass.user_id)
+    .single()
+
+  const contributor = contributorProfile as { email: string | null; role: string } | null
   const addedAt = new Date(glass.created_at).toLocaleDateString('fr-BE', {
     day: 'numeric',
     month: 'long',
