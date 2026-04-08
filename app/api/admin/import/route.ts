@@ -5,6 +5,14 @@ import { revalidatePath } from 'next/cache'
 
 export const dynamic = 'force-dynamic'
 
+function cleanManufacturerName(name: string): string {
+  return name
+    .replace(/\bbrasseries?\s+(de\s+la\s+|de\s+|du\s+|des\s+|d['']\s*)?/gi, '')
+    .replace(/\bbrasseries?\b/gi, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 function parseCSVLine(line: string): string[] {
   const result: string[] = []
   let current = ''
@@ -86,7 +94,7 @@ export async function POST(request: Request) {
     const rowNum = i + 2
 
     const name = row['name']?.trim()
-    const manufacturer = row['manufacturer']?.trim()
+    const manufacturer = row['manufacturer'] ? cleanManufacturerName(row['manufacturer']) : ''
     const description = row['description']?.trim() || null
     const imageUrl = row['image_url']?.trim() || ''
 
