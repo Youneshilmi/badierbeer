@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { Building2 } from 'lucide-react'
 import type { Glass } from '@/lib/types'
 
@@ -10,7 +11,7 @@ export default function GlassCard({ glass }: GlassCardProps) {
   const extraCount = (glass.image_urls?.length ?? 0) - 1
 
   return (
-    <div className="group relative rounded-2xl border border-[#D4AF37]/20 bg-white/5 backdrop-blur-sm overflow-hidden hover:border-[#D4AF37]/50 hover:shadow-[0_0_30px_rgba(212,175,55,0.12)] transition-all duration-300">
+    <Link href={`/catalogue/${glass.id}`} className="group relative rounded-2xl border border-[#D4AF37]/20 bg-white/5 backdrop-blur-sm overflow-hidden hover:border-[#D4AF37]/50 hover:shadow-[0_0_30px_rgba(212,175,55,0.12)] transition-all duration-300 block">
       {/* Image */}
       <div className="aspect-square relative bg-[#111] overflow-hidden">
         {mainImage ? (
@@ -51,6 +52,6 @@ export default function GlassCard({ glass }: GlassCardProps) {
 
       {/* Bottom gold line on hover */}
       <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-    </div>
+    </Link>
   )
 }
